@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 def segment_image_kmeans(image_path, k=8):
+
     # 1. Chargement et conversion
     img = cv2.imread(image_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -21,18 +22,18 @@ def segment_image_kmeans(image_path, k=8):
     kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
     labels = kmeans.fit_predict(pixel_values)
     
-    # On récupère les couleurs dominantes
+    # Recuperation couleurs dominantes
     centers = np.uint8(kmeans.cluster_centers_)
     
-    # 4. Correction Morpho-mathématique PROPRE (Verrou bruit)
-    # Au lieu de lisser les couleurs (ce qui fait du gris), on lisse les labels (0, 1, 2, 3)
+    # 4. Correction Morpho-mathématique (Verrou bruit)
+    # lissage des labels
     labels_2d = labels.reshape(height, width).astype(np.uint8)
     kernel = np.ones((5,5), np.uint8)
     
-    # On nettoie la "carte" des régions
+    # Nettoyage des régions
     cleaned_labels = cv2.morphologyEx(labels_2d, cv2.MORPH_OPEN, kernel)
 
-    # 5. Reconstruction de l'image avec les vraies couleurs
+    # 5. Reconstruction de l'image
     final_image = centers[cleaned_labels.flatten()].reshape(img_small.shape)
 
     return final_image, cleaned_labels

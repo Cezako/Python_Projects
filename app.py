@@ -15,7 +15,7 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'images')
 RESULTS_FOLDER = os.path.join(BASE_DIR, 'static', 'results')
 LABELS_FOLDER = os.path.join(BASE_DIR, 'static', 'labels')
 
-# On s'assure que tout existe au démarrage
+# verification if exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULTS_FOLDER, exist_ok=True)
 os.makedirs(LABELS_FOLDER, exist_ok=True)
@@ -31,7 +31,7 @@ def allowed_file(filename):
 
 @app.route('/')
 def home():
-    # On lit le dossier images et on filtre pour ne garder que les images
+    # filtre dossier img
     images = [f for f in os.listdir(UPLOAD_FOLDER) if allowed_file(f)]
     return render_template('index.html', images=images)
 
@@ -69,7 +69,7 @@ def segment(filename):
     result_img, labels = segment_image_kmeans(input_path, k=4)
     cv2.imwrite(output_path, cv2.cvtColor(result_img, cv2.COLOR_RGB2BGR))
     
-    # --- NOUVEAU : Lecture et conversion du Markdown ---
+    # --- Lecture et conversion du Markdown ---
     doc_path = os.path.join(base_dir, 'static', 'docs', 'explications.md')
     documentation_html = "<p>Fichier de documentation introuvable.</p>"
     
@@ -79,7 +79,7 @@ def segment(filename):
             # Convertit le texte markdown en balises HTML
             documentation_html = markdown.markdown(texte_md) 
     
-    # On ajoute la variable `documentation` au render_template
+    # variable `documentation` au render_template
     return render_template('visualisation.html', 
                            image_originale=filename, 
                            image_segmentee=output_filename,

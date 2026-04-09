@@ -11,7 +11,6 @@
             margin-top: 20px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        /* L'image et le canvas se superposent exactement */
         img, canvas {
             display: block;
         }
@@ -19,7 +18,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            cursor: crosshair; /* Curseur en forme de croix pour viser */
+            cursor: crosshair;
         }
         .controls { margin-top: 20px; }
         button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
@@ -56,9 +55,9 @@
         // Variables d'état
         let isDrawing = false;
         let startX, startY;
-        let boxes = []; // Tableau qui va stocker toutes nos Bounding Boxes
+        let boxes = []; // Tableau Bounding Boxes
 
-        // Quand l'image est chargée, on donne au canvas exactement la même taille
+        // initialisation canva
         image.onload = function() {
             canvas.width = image.width;
             canvas.height = image.height;
@@ -86,9 +85,8 @@
             const width = currentX - startX;
             const height = currentY - startY;
 
-            drawAll(); // On efface et redessine les anciennes boîtes
+            drawAll();
             
-            // On dessine la boîte en cours de création (en rouge)
             ctx.strokeStyle = "red";
             ctx.lineWidth = 2;
             ctx.strokeRect(startX, startY, width, height);
@@ -120,12 +118,11 @@
         // --- FONCTIONS UTILITAIRES ---
 
         function drawAll() {
-            // On vide le canvas
+            // empty canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // On redessine toutes les boîtes sauvegardées (en vert clair)
             ctx.strokeStyle = "#00ff00";
             ctx.lineWidth = 2;
-            ctx.fillStyle = "rgba(0, 255, 0, 0.2)"; // Fond semi-transparent
+            ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
             
             boxes.forEach(box => {
                 ctx.fillRect(box.x, box.y, box.width, box.height);
@@ -138,7 +135,7 @@
             drawAll();
         }
 
-        // --- SAUVEGARDE VERS FLASK (API) ---
+        // --- SAUVEGARDE FLASK (API) ---
 
         function saveBoxes() {
             if (boxes.length === 0) {

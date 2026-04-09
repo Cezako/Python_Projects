@@ -34,19 +34,19 @@ def extraire_regions():
             x, y = int(box['x']), int(box['y'])
             w, h = int(box['width']), int(box['height'])
             
-            # 1. Le "Crop" : On découpe la région
+            # 1. Découpage région
             crop_img = img[y:y+h, x:x+w]
             
-            # Vérification de sécurité (si la boîte sort de l'image)
+            # Vérification sécurité (si la boîte sort de l'image)
             if crop_img.size == 0:
                 continue
                 
-            # 2. Redimensionnement standard (OBLIGATOIRE pour un CNN/SVM)
-            # On force toutes les petites images à faire par exemple 64x64 pixels
+            # 2. Redimensionnement standard (OBLIGATOIRE pour CNN/SVM)
+            # update to 64x64 pixels
             crop_resized = cv2.resize(crop_img, (64, 64))
             
             # 3. Sauvegarde de la vignette
-            # Pour l'instant, ton outil JS sauvegarde le label "anomalie"
+            # label auto : "anomalie"
             label = box.get('label', 'anomalie') 
             dossier_classe = os.path.join(dataset_dir, label)
             os.makedirs(dossier_classe, exist_ok=True)
