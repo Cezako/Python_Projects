@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Étiquetage Manuel - SAE</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; text-align: center; }
+        .canvas-container {
+            position: relative;
+            display: inline-block; /* Pour que le conteneur s'ajuste à l'image */
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        /* L'image et le canvas se superposent exactement */
+        img, canvas {
+            display: block;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair; /* Curseur en forme de croix pour viser */
+        }
+        .controls { margin-top: 20px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .btn-save { background: #28a745; color: white; border: none; border-radius: 5px;}
+        .btn-clear { background: #dc3545; color: white; border: none; border-radius: 5px;}
+    </style>
+</head>
+<body>
+
+    <h1>Outil d'Étiquetage : {{ image_name }}</h1>
+    
+    <select id="classSelector">
+        <option value="bateau_moteur">Bateau à moteur</option>
+        <option value="voilier">Voilier</option>
+        <option value="kayak">Kayak</option>
+        <option value="paddle">Paddle</option>
+    </select>
+    
+    <div class="controls">
+        <button class="btn-clear" onclick="clearBoxes()">🗑️ Effacer tout</button>
+        <button class="btn-save" onclick="saveBoxes()">💾 Sauvegarder les labels</button>
+    </div>
+
+    <div class="canvas-container">
+        <img id="image" src="{{ url_for('static', filename='images/' + image_name) }}" alt="Image à annoter">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const image = document.getElementById('image');
+
+        // Variables d'état
+        let isDrawing = false;
+        let startX, startY;
+        let boxes = []; // Tableau qui va stocker toutes nos Bounding Boxes
+
+        // Quand l'image est chargée, on donne au canvas exactement la même taille
+        image.onload = function() {
+            canvas.width = image.width;
+            canvas.height = image.height;
+            drawAll(); // Dessine au cas où on recharge des boîtes existantes
+        };
+
+        // --- GESTION DE LA SOURIS ---
+
+        // 1. Clic to start drawing
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+        });
+
+        // 2. Dessin on moove
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            const width = currentX - startX;
+            const height = currentY - startY;
+
+            drawAll(); // On efface et redessine les anciennes boîtes
+            
+            // On dessine la boîte en cours de création (en rouge)
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(startX, startY, width, height);
+        });
+
+        // 3. Validation de la boîte
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            
+            const rect = canvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            const selectedClass = document.getElementById('classSelector').value;
+            
+            // On enregistre les coordonnées
+            boxes.push({
+                x: Math.min(startX, currentX),
+                y: Math.min(startY, currentY),
+                width: Math.abs(currentX - startX),
+                height: Math.abs(currentY - startY),
+                label: selectedClass // <-- MODIFIÉ : On remplace "anomalie" par notre variable
+            });
+            
+            drawAll();
+        });
+
+        // --- FONCTIONS UTILITAIRES ---
+
+        function drawAll() {
+            // On vide le canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // On redessine toutes les boîtes sauvegardées (en vert clair)
+            ctx.strokeStyle = "#00ff00";
+            ctx.lineWidth = 2;
+            ctx.fillStyle = "rgba(0, 255, 0, 0.2)"; // Fond semi-transparent
+            
+            boxes.forEach(box => {
+                ctx.fillRect(box.x, box.y, box.width, box.height);
+                ctx.strokeRect(box.x, box.y, box.width, box.height);
+            });
+        }
+
+        function clearBoxes() {
+            boxes = [];
+            drawAll();
+        }
+
+        // --- SAUVEGARDE VERS FLASK (API) ---
+
+        function saveBoxes() {
+            if (boxes.length === 0) {
+                alert("Dessine au moins une boîte avant de sauvegarder !");
+                return;
+            }
+
+            const payload = {
+                image: "{{ image_name }}",
+                boxes: boxes
+            };
+
+            // Requête HTTP POST vers notre serveur Flask
+            fetch('/api/save_labels/{{ image_name }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error("Erreur:", error);
+                alert("Erreur lors de la sauvegarde.");
+            });
+        }
+    </script>
+</body>
+</html>

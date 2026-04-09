@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>SAE - Visualisation</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f6f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        
+        /* Style des Onglets */
+        .tab-menu { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; }
+        .tab-btn { background: none; border: none; padding: 12px 20px; font-size: 16px; cursor: pointer; color: #555; font-weight: bold; transition: 0.3s; }
+        .tab-btn:hover { color: #007bff; }
+        .tab-btn.active { color: #007bff; border-bottom: 3px solid #007bff; margin-bottom: -2px; }
+        
+        /* Contenu des onglets */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Style de la Visualisation */
+        .comparaison-container { display: flex; justify-content: space-around; gap: 20px; flex-wrap: wrap; }
+        .image-box { flex: 1; min-width: 300px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; text-align: center; }
+        img { max-width: 100%; border-radius: 4px; }
+        .badge { background-color: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.9em; }
+
+        /* Style du Markdown */
+        .markdown-body { line-height: 1.6; color: #24292e; padding: 10px 30px; }
+        .markdown-body h1, .markdown-body h2 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+
+        .btn-back { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #007bff; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="/" class="btn-back">⬅ Retour au Dashboard</a>
+        
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="openTab(event, 'Visu')">👁️ Visualisation des Données</button>
+            <button class="tab-btn" onclick="openTab(event, 'Doc')">📄 Verrous & Corrections</button>
+        </div>
+
+        <div id="Visu" class="tab-content active">
+            <div class="comparaison-container">
+                <div class="image-box">
+                    <h3>Image Originale</h3>
+                    <img src="{{ url_for('static', filename='images/' + image_originale) }}" alt="Originale">
+                    <p>Fichier : <span class="badge">{{ image_originale }}</span></p>
+                </div>
+                <div class="image-box">
+                    <h3>Résultat K-Means</h3>
+                    <img src="{{ url_for('static', filename='results/' + image_segmentee) }}" alt="Segmentée">
+                    <p>Fichier généré : <span class="badge">{{ image_segmentee }}</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="Doc" class="tab-content">
+            <div class="markdown-body">
+                {{ documentation | safe }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Cacher tous les contenus
+            let tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            // Retirer la classe "active" de tous les boutons
+            let tabBtns = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabBtns.length; i++) {
+                tabBtns[i].classList.remove("active");
+            }
+            
+            // Afficher le contenu de l'onglet cliqué et l'activer
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>
