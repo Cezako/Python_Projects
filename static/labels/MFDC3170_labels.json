@@ -1,0 +1,12 @@
+{
+    "image": "MFDC3170.JPG",
+    "boxes": [
+        {
+            "x": 5652,
+            "y": 459.3999938964844,
+            "width": 429,
+            "height": 214,
+            "label": "voilier"
+        }
+    ]
+}
