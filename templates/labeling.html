@@ -92,8 +92,8 @@
             ctx.strokeRect(startX, startY, width, height);
         });
 
-        // 3. Validation de la boîte
-        canvas.addEventListener('mouseup', (e) => {
+        // 3. On relâche : on valide la boîte et on demande à l'IA
+        canvas.addEventListener('mouseup', async (e) => {
             if (!isDrawing) return;
             isDrawing = false;
             
@@ -101,32 +101,72 @@
             const currentX = e.clientX - rect.left;
             const currentY = e.clientY - rect.top;
             
-            const selectedClass = document.getElementById('classSelector').value;
-            
-            // On enregistre les coordonnées
-            boxes.push({
+            // Création de la nouvelle boîte
+            let newBox = {
                 x: Math.min(startX, currentX),
                 y: Math.min(startY, currentY),
                 width: Math.abs(currentX - startX),
                 height: Math.abs(currentY - startY),
-                label: selectedClass // <-- MODIFIÉ : On remplace "anomalie" par notre variable
-            });
+                label: "..." // En attente de l'IA
+            };
+
+            // On évite les clics accidentels (boîtes minuscules)
+            if (newBox.width < 10 || newBox.height < 10) {
+                drawAll();
+                return;
+            }
+
+            // On ajoute la boîte temporairement pour la voir
+            boxes.push(newBox);
+            drawAll();
+
+            // 🤖 APPEL À L'IA 🤖
+            try {
+                const response = await fetch('/api/predict_box/{{ image_name }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ box: newBox })
+                });
+                const data = await response.json();
+                
+                // Si l'IA a trouvé, on met à jour le label
+                if (data.prediction && data.prediction !== 'modèle_absent' && data.prediction !== 'inconnu') {
+                    newBox.label = data.prediction;
+                } else {
+                    // Sinon (ou si le modèle n'existe pas), on prend la valeur du menu déroulant manuel
+                    const manualClass = document.getElementById('classSelector') ? document.getElementById('classSelector').value : 'anomalie';
+                    newBox.label = manualClass;
+                }
+            } catch (error) {
+                console.error("Erreur de prédiction IA :", error);
+                newBox.label = "Erreur IA";
+            }
             
+            // On redessine tout avec le bon label
             drawAll();
         });
 
         // --- FONCTIONS UTILITAIRES ---
 
         function drawAll() {
-            // empty canvas
+            // On vide le canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = "#00ff00";
-            ctx.lineWidth = 2;
-            ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
             
             boxes.forEach(box => {
+                // Dessin du rectangle
+                ctx.strokeStyle = "#00ff00";
+                ctx.lineWidth = 2;
+                ctx.fillStyle = "rgba(0, 255, 0, 0.2)"; 
+                
                 ctx.fillRect(box.x, box.y, box.width, box.height);
                 ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+                // Dessin du texte (Le label)
+                ctx.fillStyle = "#00ff00";
+                ctx.font = "bold 16px Arial";
+                // On écrit le texte juste au-dessus de la boîte (ou en dessous si elle touche le bord haut)
+                let textY = box.y > 20 ? box.y - 5 : box.y + 20;
+                ctx.fillText(box.label, box.x, textY);
             });
         }
 

@@ -1,0 +1,12 @@
+{
+    "image": "MFDC3165.JPG",
+    "boxes": [
+        {
+            "x": 3076,
+            "y": 94.39999389648438,
+            "width": 327,
+            "height": 208,
+            "label": "bateau_moteur"
+        }
+    ]
+}

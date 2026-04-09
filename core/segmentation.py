@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from sklearn.cluster import KMeans
 
-def segment_image_kmeans(image_path, k=8):
+def segment_image_kmeans(image_path, k=4):
 
     # 1. Chargement et conversion
     img = cv2.imread(image_path)

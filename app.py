@@ -5,6 +5,10 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 from werkzeug.utils import secure_filename
 from core.segmentation import segment_image_kmeans
 
+import joblib
+import numpy as np
+from skimage.feature import hog
+
 import markdown
 
 app = Flask(__name__)
@@ -105,6 +109,51 @@ def save_labels(filename):
         json.dump(data, f, indent=4)
         
     return jsonify({"status": "success", "message": "Sauvegardé avec succès !"})
+
+@app.route('/api/predict_box/<filename>', methods=['POST'])
+def predict_box(filename):
+    """Reçoit les coordonnées d'une boîte, découpe l'image et demande au SVM de deviner."""
+    data = request.json
+    box = data['box']
+    
+    x, y = int(box['x']), int(box['y'])
+    w, h = int(box['width']), int(box['height'])
+    
+    # Sécurité : on ignore les clics accidentels trop petits
+    if w < 10 or h < 10:
+        return jsonify({'prediction': 'inconnu'})
+
+    # 1. Charger l'image originale
+    input_path = os.path.join(UPLOAD_FOLDER, filename)
+    img = cv2.imread(input_path)
+    
+    if img is None:
+        return jsonify({'prediction': 'erreur_image'})
+
+    # 2. Faire le "crop" (découper la boîte)
+    crop_img = img[y:y+h, x:x+w]
+    
+    if crop_img.size == 0:
+        return jsonify({'prediction': 'inconnu'})
+
+    # 3. Traitement HOG (exactement comme dans ton script d'entraînement)
+    crop_resized = cv2.resize(crop_img, (64, 64))
+    gray = cv2.cvtColor(crop_resized, cv2.COLOR_BGR2GRAY)
+    hog_features = hog(gray, orientations=9, pixels_per_cell=(8, 8),
+                       cells_per_block=(2, 2), block_norm='L2-Hys', visualize=False)
+
+    # 4. Charger le modèle et prédire
+    model_path = os.path.join(BASE_DIR, 'core', 'svm_model.pkl')
+    
+    if not os.path.exists(model_path):
+        return jsonify({'prediction': 'modèle_absent'})
+        
+    svm_model = joblib.load(model_path)
+    prediction = svm_model.predict([hog_features])[0] # On récupère le label deviné
+    
+    print(f"🤖 L'IA a détecté un : {prediction}")
+    
+    return jsonify({'prediction': str(prediction)})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

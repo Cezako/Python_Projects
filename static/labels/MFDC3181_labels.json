@@ -2,11 +2,11 @@
     "image": "MFDC3181.JPG",
     "boxes": [
         {
-            "x": 6573.60009765625,
-            "y": 36.75,
-            "width": 85,
-            "height": 112,
-            "label": "voilier"
+            "x": 4529,
+            "y": 1300.3999938964844,
+            "width": 205,
+            "height": 199,
+            "label": "bateau_moteur"
         }
     ]
 }

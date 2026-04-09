@@ -2,28 +2,106 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SAE - Dashboard IA</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h1 { color: #333; text-align: center; }
-        
-        .upload-section { background: #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; }
-        .upload-section input[type="file"] { margin-right: 10px; }
-        .upload-section button { background: #343a40; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .card { border: 1px solid #e1e4e8; border-radius: 8px; overflow: hidden; background: #fff; text-align: center; padding-bottom: 15px; transition: transform 0.2s; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
-        .card img { width: 100%; height: 150px; object-fit: cover; border-bottom: 1px solid #e1e4e8; margin-bottom: 10px; }
-        .card p { margin: 0 0 10px 0; font-size: 0.9em; color: #555; font-weight: bold; }
-        
-        .btn { display: inline-block; width: 80%; margin: 5px auto; padding: 8px; text-decoration: none; border-radius: 5px; color: white; font-size: 14px; font-weight: bold; }
-        .btn-segment { background: #007bff; }
-        .btn-segment:hover { background: #0056b3; }
-        .btn-label { background: #28a745; }
-        .btn-label:hover { background: #1e7e34; }
-    </style>
+    <title>Dashboard</title>
+<style>
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        background: #181818; /* Fond principal très sombre */
+        color: #e0e0e0; /* Couleur de texte par défaut claire pour la lisibilité */
+        margin: 0; 
+        padding: 20px; 
+    }
+    
+    .container { 
+        max-width: 1000px; 
+        margin: auto; 
+        background: #242424; /* Légèrement plus clair que le fond pour détacher le bloc */
+        padding: 30px; 
+        border-radius: 12px; 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Ombre plus prononcée en mode sombre */
+    }
+    
+    h1 { 
+        color: #ffffff; /* Blanc pur pour faire ressortir le titre */
+        text-align: center; 
+    }
+    
+    .upload-section { 
+        background: #2f2f2f; /* Gris foncé au lieu du gris clair */
+        padding: 20px; 
+        border-radius: 8px; 
+        margin-bottom: 30px; 
+        text-align: center; 
+        border: 1px solid #404040;
+    }
+    .upload-section input[type="file"] { 
+        margin-right: 10px; 
+        color: #e0e0e0;
+    }
+    .upload-section button { 
+        background: #404040; 
+        color: #ffffff; 
+        border: none; 
+        padding: 8px 15px; 
+        border-radius: 5px; 
+        cursor: pointer; 
+        transition: background 0.2s;
+    }
+    .upload-section button:hover {
+        background: #555555; /* Effet de survol */
+    }
+    
+    .grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+        gap: 20px; 
+    }
+    .card { 
+        background: #2f2f2f; /* Uniformisé avec la section d'upload */
+        border: 1px solid #404040; /* Bordure discrète sombre */
+        border-radius: 8px; 
+        overflow: hidden; 
+        text-align: center; 
+        padding-bottom: 15px; 
+        transition: transform 0.2s, box-shadow 0.2s; 
+    }
+    .card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5); 
+    }
+    .card img { 
+        width: 100%; 
+        height: 150px; 
+        object-fit: cover; 
+        border-bottom: 1px solid #404040; 
+        margin-bottom: 10px; 
+    }
+    .card p { 
+        margin: 0 0 10px 0; 
+        font-size: 0.9em; 
+        color: #e0e0e0; 
+        font-weight: bold; 
+    }
+    
+    /* Boutons */
+    .btn { 
+        display: inline-block; 
+        width: 80%; 
+        margin: 5px auto; 
+        padding: 8px; 
+        text-decoration: none; 
+        border-radius: 5px; 
+        color: #ffffff; 
+        font-size: 14px; 
+        font-weight: bold; 
+        transition: background 0.2s;
+    }
+
+    .btn-segment { background: #007bff; }
+    .btn-segment:hover { background: #0056b3; }
+    .btn-label { background: #28a745; }
+    .btn-label:hover { background: #1e7e34; }
+</style>
 </head>
 <body>
 
